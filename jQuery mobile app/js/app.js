@@ -20,7 +20,6 @@ function getObjects(){
 }
 
 function saveObject(objects){
-    console.log(JSON.stringify(objects));
 	localStorage.setItem("objects", JSON.stringify(objects));
 }
 
@@ -31,7 +30,7 @@ function homepage(){
     
     // Add every object to the objects list
 	$.each(objects, function(index, item){
-		element = '<li>'+item.name+'</li>';
+		element = '<li><a>'+item.name+'</a><a href="#" class="split-button-custom" data-role="button" data-icon="delete"></a></li>';
 		
 		$('#items').append(element);
 	});
