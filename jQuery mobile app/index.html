@@ -1,32 +1,201 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/themes/my-custom-theme.css.min.css" />
-  <link rel="stylesheet" href="css/themes/jquery.mobile.icons.min.css" />
-  <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" /> 
-  <script src="js/jquery-1.11.1.min.js"></script> 
-  <script src="js/jquery.mobile-1.4.5.min.js"></script> 
-  <script src="js/app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/themes/my-custom-theme.css.min.css" />
+    <link rel="stylesheet" href="css/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" />
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
 </head>
-    <body>
-        <div data-role="page" id="home">
-            <div data-role="header">
-                <h1>Todo</h1>
-                <a href="index.html" data-role="button" class="ui-btn" onClick="clearObjects();" >Clear all</a><br>
-            </div>
 
-            <div data-role="main" class="ui-content">  
-                <ul id="items" data-role="listview">
-                </ul><br>
-                <a href="addItem.html" class="ui-btn">Add item</a>
-      
-            </div>
+<body>
 
-            <div data-role="footer">
-                <h1>Footer</h1>
-            </div>
+
+
+    <!--homepage-->
+    <div data-role="page" id="home">
+        <div data-role="header">
+            <h1>Todo</h1>
+            <a href="#home" data-role="button" class="ui-btn" onClick="clearObjects();">Clear all</a>
+            <br>
         </div>
-    </body>
-</html>
 
+        <div data-role="main" class="ui-content">
+            <ul id="items" data-role="listview">
+            </ul>
+            <br>
+            <a href="#addItem" class="ui-btn">Add item</a>
+
+        </div>
+
+        <div data-role="footer">
+            <h1>Footer</h1>
+        </div>
+    </div>
+
+
+
+
+
+    <!--details-->
+    <div data-role="page" id="details">
+        <div data-role="header">
+            <header data-role="header"> Details item <span id="itemid"></span></header>
+        </div>
+
+        <div data-role="main" class="ui-content" id="nameObject">
+            <a href="#home" class="ui-btn">back</a>
+            <input type="text" id="updateItem" placeholder="Update item name..">
+            <button data-role="button" id="update" class="ui-btn">Confirm</button>
+            <button data-role="button" id="delete" class="ui-btn">Delete</button>
+            <br>;
+        </div>
+
+        <div data-role="footer">
+            <h1>Footer</h1>
+        </div>
+    </div>
+
+
+
+
+    <!--Add items-->
+    <div data-role="page" id="addItem">
+        <div data-role="header">
+            <h1>Epic site</h1>
+        </div>
+        <div data-role="main" class="ui-content">
+            <a href="#home" class="ui-btn">Back</a>
+            <br>
+            <h2>Name</h2>
+            <input type="text" name="itemName" placeholder="Add item name..">
+            <br>
+            <a data-role="button" class="ui-btn" onClick="add();" href="#home">Confirm</a>
+            <br>
+        </div>
+        <div data-role="footer">
+            <h1>Footer</h1>
+        </div>
+    </div>
+
+
+
+
+    <!--javascript-->
+    <script>
+        $('#items').on('click', 'li', function () {
+            localStorage.setItem("objectSelected", $(this).index());
+            $.mobile.navigate("#details", {
+                transition: "slide"
+            });
+        });
+
+        function add() {
+            var name = $('[name="itemName"]').val();
+
+            var objects = getObjects();
+
+            objects.push({
+                name: name
+            });
+
+            saveObject(objects);
+        }
+
+        function getObjects() {
+            if (localStorage.getItem("objects")) {
+                objects = $.parseJSON(localStorage.getItem("objects"));
+            } else {
+                objects = new Array();
+            }
+            return objects;
+        }
+
+        function getObjectID() {
+            var id = localStorage.getItem("objectSelected");
+            return id;
+        }
+
+
+        function saveObject(objects) {
+            localStorage.setItem("objects", JSON.stringify(objects));
+            console.log(objects[0] + " save");
+        }
+
+
+        function clearObjects() {
+            localStorage.clear();
+            homepage();
+        }
+
+
+        function homepage() {
+            objects = getObjects();
+
+            $('#items').find('li').remove();
+
+            // Add every object to the objects list
+            $.each(objects, function (index, item) {
+                element = '<li><a href="#details">' + item.name + '</a></li>';
+
+                $('#items').append(element);
+            });
+
+            $('#items').listview();
+            $('#items').listview("refresh");
+        }
+
+        $(document).on("pageshow", '#details', function () {
+            var id = getObjectID();
+            $('#itemid').html(id);
+
+            var objectArray = getObjects();
+            console.log((objectArray[id]));
+            $('#updateItem').val(objectArray[id]);
+        });
+
+        $(document).on('pagebeforeshow', '#home', function () {
+            homepage();
+        });
+
+        $(document).on('pageready', '#home', function () {
+            homepage();
+        });
+
+
+
+        $("#update").on('click', function () {
+
+            //get id and change the item
+            var id = getObjectID();
+            var objectArray = getObjects();
+            objectArray[id] = $('#updateItem').val();
+            saveObject(objectArray);
+
+            $.mobile.navigate("#home", {
+                transition: "slide"
+            });
+        });
+
+        $("#delete").on('click', function () {
+            
+            //get id and use it to delete item
+            var id = getObjectID();
+            var objectArray = getObjects();
+            objectArray.splice(id, 1);
+            saveObject(objectArray);
+
+            $.mobile.navigate("#home", {
+                transition: "slide"
+            });
+            
+            //homepage();
+        });
+    </script>
+
+
+</body>
+
+</html>
