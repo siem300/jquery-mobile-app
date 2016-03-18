@@ -18,8 +18,7 @@
     <div data-role="page" id="home">
         <div data-role="header">
             <h1>Todo</h1>
-            <a href="#home" data-role="button" class="ui-btn" onClick="clearObjects();">Clear all</a>
-            <br>
+                        <a href="#home" data-icon="delete" onClick="clearObjects();" data-mini="true">Clear all</a>
         </div>
 
         <div data-role="main" class="ui-content">
@@ -27,6 +26,7 @@
             </ul>
             <br>
             <a href="#addItem" class="ui-btn">Add item</a>
+
 
         </div>
 
@@ -64,7 +64,7 @@
     <!--Add items-->
     <div data-role="page" id="addItem">
         <div data-role="header">
-            <h1>Epic site</h1>
+            <h1>Add item</h1>
         </div>
         <div data-role="main" class="ui-content">
             <a href="#home" class="ui-btn">Back</a>
@@ -98,10 +98,14 @@
             var objects = getObjects();
 
             objects.push({
-                name: name
+                name:name
             });
 
             saveObject(objects);
+            
+            $.mobile.navigate("#home", {
+                transition: "slide"
+            });
         }
 
         function getObjects() {
@@ -149,11 +153,12 @@
 
         $(document).on("pageshow", '#details', function () {
             var id = getObjectID();
-            $('#itemid').html(id);
-
             var objectArray = getObjects();
+            //change header title so it has item name in it
+            $('#itemid').html(objectArray[id].name);
+
             console.log((objectArray[id]));
-            $('#updateItem').val(objectArray[id]);
+            $('#updateItem').val(objectArray[id].name);
         });
 
         $(document).on('pagebeforeshow', '#home', function () {
@@ -171,7 +176,7 @@
             //get id and change the item
             var id = getObjectID();
             var objectArray = getObjects();
-            objectArray[id] = $('#updateItem').val();
+            objectArray[id].name = $('#updateItem').val();
             saveObject(objectArray);
 
             $.mobile.navigate("#home", {
@@ -190,8 +195,6 @@
             $.mobile.navigate("#home", {
                 transition: "slide"
             });
-            
-            //homepage();
         });
     </script>
 
